@@ -1,0 +1,4 @@
+{
+  "app": "sbt run",
+  "versionReporting": false
+}
