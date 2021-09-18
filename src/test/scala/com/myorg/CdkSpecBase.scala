@@ -9,8 +9,12 @@ import software.amazon.awscdk
 import software.amazon.awscdk.core.Stack
 
 import scala.jdk.CollectionConverters.{IterableHasAsScala, MapHasAsScala}
+import scala.reflect.{ClassTag, classTag}
+import scala.util.control.NonFatal
 
-abstract class CdkSpecBase extends AnyFunSuite with Matchers with TypeCheckedTripleEquals {}
+abstract class CdkSpecBase extends AnyFunSuite with Matchers with TypeCheckedTripleEquals {
+  protected def createTemplate(app: awscdk.core.App, stack: Stack): JsValue = CdkSpecBase.createTemplate(app, stack)
+}
 
 object CdkSpecBase {
 
@@ -52,20 +56,26 @@ object CdkSpecBase {
 }
 
 object TestOps {
-  implicit class JsLookupResultOps(val value: JsLookupResult) extends AnyVal {
-    def orFail: JsValue = value match {
-      case JsDefined(value)       => value
-      case undefined: JsUndefined => fail(undefined.error)
+  implicit class JsValueOps(val value: JsValue) extends AnyVal {
+    def get(fieldName: String): JsValue = value match {
+      case _: JsObject =>
+        try {
+          value.apply(fieldName)
+        } catch {
+          case NonFatal(_) => fail(s"'$fieldName' is undefined on object: ${Json.prettyPrint(value)}")
+        }
+      case _ => fail(s"cannot get '$fieldName' because ${Json.prettyPrint(value)} is not a JsObject")
     }
-  }
 
-  implicit class JsReadableOps(val value: JsReadable) extends AnyVal {
-    def decode[A](implicit fjs: Reads[A]): A = value.validate.fold(
-      err => {
-        val errors = err.flatMap(_._2).flatMap(_.messages)
-        fail(errors.mkString("\n"))
-      },
-      identity,
-    )
+    def getAs[A: ClassTag](fieldName: String)(implicit fjs: Reads[A]): A = {
+      val value = get(fieldName)
+      value.validate.fold(
+        err => {
+          val errors = err.flatMap(_._2).flatMap(_.messages)
+          fail(errors.mkString("", "\n", "\n") + s"'$value' cannot convert to ${classTag[A].runtimeClass}")
+        },
+        identity,
+      )
+    }
   }
 }

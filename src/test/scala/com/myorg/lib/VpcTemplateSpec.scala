@@ -1,8 +1,7 @@
 package com.myorg.lib
 
 import com.myorg.CdkSpecBase
-import com.myorg.CdkSpecBase.createTemplate
-import com.myorg.TestOps.{JsLookupResultOps, JsReadableOps}
+import com.myorg.TestOps.JsValueOps
 import software.amazon.awscdk
 
 class VpcTemplateSpec extends CdkSpecBase {
@@ -12,11 +11,11 @@ class VpcTemplateSpec extends CdkSpecBase {
     val stack    = new VpcTemplateStack().createResources(app, "Test")
     val template = createTemplate(app, stack)
 
-    val resources  = (template \ "Resources").orFail
-    val vpc        = (resources \ "MyVpc").orFail
-    val properties = (vpc \ "Properties").orFail
-    (vpc \ "Type").decode[String] should ===("AWS::EC2::VPC")
+    val resources  = template.get("Resources")
+    val vpc        = resources.get("MyVpc")
+    val properties = vpc.get("Properties")
+    vpc.getAs[String]("Type") should ===("AWS::EC2::VPC")
 
-    (properties \ "CidrBlock").decode[String] should ===("10.0.0.0/16")
+    properties.getAs[String]("CidrBlock") should ===("10.0.0.0/16")
   }
 }
