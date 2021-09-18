@@ -1,7 +1,7 @@
 lazy val root = (project in file("."))
   .settings(
     organization := "com.myorg",
-    name := "awscdk-scala",
+    name := "awscdk-scala-samples",
     version := "0.1",
     scalaVersion := "2.13.6",
     scalacOptions ++= Seq(
