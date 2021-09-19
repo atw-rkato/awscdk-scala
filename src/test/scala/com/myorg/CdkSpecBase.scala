@@ -13,19 +13,19 @@ import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NonFatal
 
 abstract class CdkSpecBase extends AnyFunSuite with Matchers with TypeCheckedTripleEquals {
-  protected def createTemplate(app: awscdk.core.App, stack: Stack): JsValue = CdkSpecBase.createTemplate(app, stack)
+  def getTemplate(app: awscdk.core.App, stack: Stack): JsValue = CdkSpecBase.getTemplate(app, stack)
 }
 
 object CdkSpecBase {
 
-  def createTemplate(app: awscdk.core.App, stack: Stack): JsValue = {
+  def getTemplate(app: awscdk.core.App, stack: Stack): JsValue = {
     val template = app.synth.getStackArtifact(stack.getArtifactId).getTemplate
 
-    Json.toJson(template: Any)
+    Json.toJson(template: Any)(BasicTypesWrites)
   }
 
   @annotation.nowarn
-  implicit lazy val BasicTypesWrites: Writes[Any] = {
+  private lazy val BasicTypesWrites: Writes[Any] = {
     case v: JsValue => v
     case v: collection.Map[String, _] =>
       Json.toJson(v.map { case (k, v: Any) => (k, Json.toJson(v)(BasicTypesWrites)) })
@@ -67,12 +67,14 @@ object TestOps {
       case _ => fail(s"cannot get '$fieldName' because ${Json.prettyPrint(value)} is not a JsObject")
     }
 
-    def getAs[A: ClassTag](fieldName: String)(implicit fjs: Reads[A]): A = {
-      val value = get(fieldName)
+    def to[A: ClassTag](implicit fjs: Reads[A]): A = {
       value.validate.fold(
         err => {
           val errors = err.flatMap(_._2).flatMap(_.messages)
-          fail(errors.mkString("", "\n", "\n") + s"'$value' cannot convert to ${classTag[A].runtimeClass}")
+          val msg =
+            s"${value.getClass.getSimpleName}($value) cannot convert to ${classTag[A].runtimeClass.getSimpleName}"
+
+          fail(errors.mkString("", "\n", "\n") + msg)
         },
         identity,
       )
