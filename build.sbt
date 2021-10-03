@@ -1,3 +1,5 @@
+import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtConfig
+
 lazy val root = (project in file("."))
   .settings(
     organization := "com.myorg",
@@ -14,13 +16,14 @@ lazy val root = (project in file("."))
       "-Ywarn-dead-code",
       "-Ywarn-numeric-widen",
       "-Ywarn-value-discard",
-      "-Wconf:cat=lint-byname-implicit:s,any:e",
+//      "-Wconf:cat=lint-byname-implicit:s,any:e",
     ),
+    javacOptions ++= Seq("-source", "11", "-target", "11", "-encoding", "UTF-8"),
     scalafmtConfig := file(".scalafmt.conf"),
     libraryDependencies ++= cdkDependencies ++ testDependencies,
   )
 
-lazy val cdkVersion = "1.122.0"
+lazy val cdkVersion = "1.125.0"
 lazy val cdkDependencies = Seq(
   "software.amazon.awscdk" % "core"                   % cdkVersion,
   "software.amazon.awscdk" % "elasticloadbalancingv2" % cdkVersion,

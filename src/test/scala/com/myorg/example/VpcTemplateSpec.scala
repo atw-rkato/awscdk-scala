@@ -1,18 +1,15 @@
-package com.myorg.sample
+package com.myorg.example
 
 import com.myorg.CdkSpecBase
 import com.myorg.TestOps.JsValueOps
-import software.amazon.awscdk
 
 class VpcTemplateSpec extends CdkSpecBase {
 
   test("testStack") {
-    val app      = new awscdk.core.App
-    val stack    = new VpcTemplateStack(app, "Test")
-    val template = getTemplate(app, stack)
+    val template = createTemplate(VpcTemplateStack)
 
-    val resources  = template.get("Resources")
-    val vpc        = resources.get("MyVpc")
+    val resources = template.get("Resources")
+    val vpc = resources.get("SampleVpc07DAD426")
     val properties = vpc.get("Properties")
     vpc.get("Type").to[String] should ===("AWS::EC2::VPC")
 

@@ -1,4 +1,6 @@
 {
   "app": "sbt run",
-  "versionReporting": false
+  "profile": "my-aws",
+  "versionReporting": false,
+  "requireApproval": "never"
 }

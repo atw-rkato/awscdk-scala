@@ -1,28 +1,34 @@
 package com.myorg
 
+import com.myorg.lib.StackFactory
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.Assertions.fail
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json._
 import software.amazon.awscdk
-import software.amazon.awscdk.core.Stack
+import software.amazon.awscdk.core.{Stack, StackProps}
 
 import scala.jdk.CollectionConverters.{IterableHasAsScala, MapHasAsScala}
 import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NonFatal
 
 abstract class CdkSpecBase extends AnyFunSuite with Matchers with TypeCheckedTripleEquals {
-  def getTemplate(app: awscdk.core.App, stack: Stack): JsValue = CdkSpecBase.getTemplate(app, stack)
-}
+  import com.myorg.CdkSpecBase._
 
-object CdkSpecBase {
-
-  def getTemplate(app: awscdk.core.App, stack: Stack): JsValue = {
+  def createTemplate(stackFactory: StackFactory[_ <: Stack], props: Option[StackProps] = None): JsValue = {
+    val app = new awscdk.core.App
+    val stack = stackFactory(app, props)
     val template = app.synth.getStackArtifact(stack.getArtifactId).getTemplate
 
     Json.toJson(template: Any)(BasicTypesWrites)
   }
+
+  def createTemplate(stackFactory: StackFactory[_ <: Stack], props: StackProps): JsValue =
+    createTemplate(stackFactory, Some(props))
+}
+
+object CdkSpecBase {
 
   @annotation.nowarn
   private lazy val BasicTypesWrites: Writes[Any] = {
@@ -57,6 +63,7 @@ object CdkSpecBase {
 
 object TestOps {
   implicit class JsValueOps(val value: JsValue) extends AnyVal {
+
     def get(fieldName: String): JsValue = value match {
       case _: JsObject =>
         try {
