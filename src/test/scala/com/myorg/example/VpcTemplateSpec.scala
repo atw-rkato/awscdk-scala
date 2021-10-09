@@ -8,8 +8,8 @@ class VpcTemplateSpec extends CdkSpecBase {
   test("testStack") {
     val template = createTemplate(VpcTemplateStack)
 
-    val resources = template.get("Resources")
-    val vpc = resources.get("SampleVpc07DAD426")
+    val resources  = template.get("Resources")
+    val vpc        = resources.get("SampleVpc07DAD426")
     val properties = vpc.get("Properties")
     vpc.get("Type").to[String] should ===("AWS::EC2::VPC")
 

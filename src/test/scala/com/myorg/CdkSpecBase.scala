@@ -17,8 +17,8 @@ abstract class CdkSpecBase extends AnyFunSuite with Matchers with TypeCheckedTri
   import com.myorg.CdkSpecBase._
 
   def createTemplate(stackFactory: StackFactory[_ <: Stack], props: Option[StackProps] = None): JsValue = {
-    val app = new awscdk.core.App
-    val stack = stackFactory(app, props)
+    val app      = new awscdk.core.App
+    val stack    = stackFactory(app, props)
     val template = app.synth.getStackArtifact(stack.getArtifactId).getTemplate
 
     Json.toJson(template: Any)(BasicTypesWrites)

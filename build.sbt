@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= cdkDependencies ++ testDependencies,
   )
 
-lazy val cdkVersion = "1.125.0"
+lazy val cdkVersion = "1.126.0"
 lazy val cdkDependencies = Seq(
   "software.amazon.awscdk" % "core"                   % cdkVersion,
   "software.amazon.awscdk" % "elasticloadbalancingv2" % cdkVersion,

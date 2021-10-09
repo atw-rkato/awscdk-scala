@@ -8,30 +8,40 @@ import scala.collection.mutable
 
 object Main {
 
-  val stacks: Seq[StackFactory[_]] = Seq(
+  val stacks: IndexedSeq[StackFactory[_]] = IndexedSeq(
     VpcTemplateStack
   )
 
   def main(args: Array[String]): Unit = {
-    checkStacks()
+    requireNoDuplicateIds()
 
     val app = new awscdk.core.App
 
-    stacks.foreach(stack => stack(app))
+    stacks.foreach(_.apply(app))
 
     app.synth
 
     ()
   }
 
-  private def checkStacks(): Unit = {
+  /**
+   * @throws IllegalStateException スタックIDが重複している場合
+   */
+  private def requireNoDuplicateIds(): Unit = {
+    val errors = mutable.ListBuffer.empty[String]
+
     val ids = mutable.Set.empty[StackId]
     for (stack <- stacks) {
       val id = stack.id
       if (ids(id)) {
-        throw new IllegalStateException(s"id重複: '${id.value}' of ${stack.getClass.getSimpleName}")
+        errors += s"id重複: '${id.value}' of ${stack.getClass.getSimpleName}"
+      } else {
+        ids += id
       }
-      ids += id
+    }
+
+    if (errors.nonEmpty) {
+      throw new IllegalStateException(errors.mkString("\n"))
     }
 
     ()
