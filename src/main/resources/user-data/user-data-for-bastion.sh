@@ -1,13 +1,7 @@
 #!/bin/bash
+echo "user-script start"
+timedatectl set-timezone Asia/Tokyo
+localectl set-locale LANG=ja_JP.UTF-8
+echo "export LC_ALL=ja_JP.UTF-8" >> /etc/profile
 yum update -y
-sudo su
-
-amazon-linux-extras install -y nginx1
-systemctl start nginx
-systemctl enable nginx
-
-chmod 2775 /usr/share/nginx/html
-find /usr/share/nginx/html -type d -exec chmod 2775 {} \;
-find /usr/share/nginx/html -type f -exec chmod 0664 {} \;
-
-echo "<h1>It worked</h1>" > /usr/share/nginx/html/index.html
+echo "user-script end"

@@ -10,10 +10,10 @@ object Ec2BastionStack {
 class Ec2BastionStack(args: StackArgs, vpc: IVpc, sgBastion: ISecurityGroup)
     extends StackBase(Ec2BastionStack.id, args) {
 
-  val ec2: Instance = {
+  val bastion: IInstance = {
     val keyName = tryGetContext[String]("keyName").get
 
-//    val userScript: String = io.Source.fromResource("user-data/user-data-for-bastion.sh").mkString
+    val userScript: String = io.Source.fromResource("user-data/user-data-for-bastion.sh").mkString
 
     val instance = Instance.Builder
       .create(this, "sample-ec2-bastion")
@@ -25,7 +25,7 @@ class Ec2BastionStack(args: StackArgs, vpc: IVpc, sgBastion: ISecurityGroup)
             .edition(AmazonLinuxEdition.STANDARD)
             .generation(AmazonLinuxGeneration.AMAZON_LINUX_2)
             .storage(AmazonLinuxStorage.GENERAL_PURPOSE)
-//          .userData(UserData.forLinux(LinuxUserDataOptions.builder().shebang(userScript).build()))
+            .userData(UserData.forLinux(LinuxUserDataOptions.builder().shebang(userScript).build()))
             .virtualization(AmazonLinuxVirt.HVM)
             .build()
         )
