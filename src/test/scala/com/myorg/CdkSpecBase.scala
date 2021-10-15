@@ -1,35 +1,25 @@
 package com.myorg
 
-import com.myorg.lib.StackFactory
+import com.myorg.lib.StackArgs
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.Assertions.fail
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json._
 import software.amazon.awscdk
-import software.amazon.awscdk.core.{Stack, StackProps}
+import software.amazon.awscdk.core
+import software.amazon.awscdk.core.Stack
 
 import scala.jdk.CollectionConverters.{IterableHasAsScala, MapHasAsScala}
 import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NonFatal
 
 abstract class CdkSpecBase extends AnyFunSuite with Matchers with TypeCheckedTripleEquals {
-  import com.myorg.CdkSpecBase._
-
-  def createTemplate(stackFactory: StackFactory[_ <: Stack], props: Option[StackProps] = None): JsValue = {
-    val app      = new awscdk.core.App
-    val stack    = stackFactory(app, props)
-    val template = app.synth.getStackArtifact(stack.getArtifactId).getTemplate
-
-    Json.toJson(template: Any)(BasicTypesWrites)
-  }
-
-  def createTemplate(stackFactory: StackFactory[_ <: Stack], props: StackProps): JsValue =
-    createTemplate(stackFactory, Some(props))
+  lazy val app: core.App       = new awscdk.core.App
+  lazy val testArgs: StackArgs = StackArgs(app)
 }
 
 object CdkSpecBase {
-
   @annotation.nowarn
   private lazy val BasicTypesWrites: Writes[Any] = {
     case v: JsValue => v
@@ -59,9 +49,15 @@ object CdkSpecBase {
     case v if v == null              => JsNull
     case _                           => throw new UnsupportedOperationException
   }
-}
 
-object TestOps {
+  implicit class StackOps(val value: Stack) extends AnyVal { self: CdkSpecBase =>
+    def toJson: JsValue = {
+      val template = app.synth.getStackArtifact(value.getArtifactId).getTemplate
+
+      Json.toJson(template: Any)(BasicTypesWrites)
+    }
+  }
+
   implicit class JsValueOps(val value: JsValue) extends AnyVal {
 
     def get(fieldName: String): JsValue = value match {
