@@ -4,8 +4,8 @@ import com.myorg.lib.StackArgs
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.Assertions.fail
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should.Matchers
-import play.api.libs.json._
+import org.scalatest.matchers.should
+import play.api.libs.json.{JsNull, JsObject, JsValue, Json, Reads, Writes}
 import software.amazon.awscdk
 import software.amazon.awscdk.core
 import software.amazon.awscdk.core.Stack
@@ -14,12 +14,15 @@ import scala.jdk.CollectionConverters.{IterableHasAsScala, MapHasAsScala}
 import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NonFatal
 
-abstract class CdkSpecBase extends AnyFunSuite with Matchers with TypeCheckedTripleEquals {
-  lazy val app: core.App       = new awscdk.core.App
-  lazy val testArgs: StackArgs = StackArgs(app)
+abstract class CdkSpecBase extends AnyFunSuite with should.Matchers with TypeCheckedTripleEquals {
+  import com.myorg.CdkSpecBase._
+
+  protected lazy val testArgs: StackArgs = StackArgs(app)
 }
 
 object CdkSpecBase {
+  private lazy val app: core.App = new awscdk.core.App
+
   @annotation.nowarn
   private lazy val BasicTypesWrites: Writes[Any] = {
     case v: JsValue => v
@@ -50,7 +53,7 @@ object CdkSpecBase {
     case _                           => throw new UnsupportedOperationException
   }
 
-  implicit class StackOps(val value: Stack) extends AnyVal { self: CdkSpecBase =>
+  implicit class StackOps(val value: Stack) extends AnyVal {
     def toJson: JsValue = {
       val template = app.synth.getStackArtifact(value.getArtifactId).getTemplate
 

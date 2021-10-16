@@ -1,27 +1,29 @@
 package com.myorg.lib
 
-import software.amazon.awscdk.core.{Construct, Stack, StackProps}
+import software.amazon.awscdk.core.{IConstruct, Stack, StackProps}
 
 import scala.util.{Failure, Try}
 
 abstract class StackBase(protected val id: StackId, args: StackArgs)
     extends Stack(args.scope, id.value, args.props.orNull)
     with StackOps {
-  protected val scope: Construct          = args.scope
+  protected val scope: IConstruct         = args.scope
   protected val props: Option[StackProps] = args.props
 
-  protected def tryGetContext[A: ContextRead](contextKey: String): Try[A] = {
-    val ctx = getNode.tryGetContext(contextKey)
+  private lazy val node = getNode
+
+  protected def tryGetContext[A: ContextReads](contextKey: String): Try[A] = {
+    val ctx = node.tryGetContext(contextKey)
     if (ctx eq null) {
       Failure(new NoSuchElementException(s"context $contextKey doesn't exists."))
     } else {
-      implicitly[ContextRead[A]].tryRead(ctx)
+      implicitly[ContextReads[A]].tryRead(ctx)
     }
   }
 }
 
 trait StackOps {
-  implicit val contextReadString: ContextRead[String] = value => Try(value.asInstanceOf[String])
+  implicit protected val ctxReadsForString: ContextReads[String] = value => Try(value.asInstanceOf[String])
 
   import java.{util => ju}
 
@@ -37,6 +39,6 @@ trait StackOps {
   }
 }
 
-trait ContextRead[A] {
+trait ContextReads[A] {
   def tryRead(value: Any): Try[A]
 }
