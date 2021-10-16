@@ -1,12 +1,12 @@
 package com.myorg.example
 
 import com.myorg.CdkSpecBase
-import com.myorg.CdkSpecBase.{JsValueOps, StackOps}
+import com.myorg.CdkSpecBase.{JsValueOps, StackWrapperOps}
 
 class VpcTemplateSpec extends CdkSpecBase {
 
   test("testStack") {
-    val template = new VpcStack(testArgs).toJson
+    val template = VpcStack(testArgs).toJson
     val vpcId    = "SampleVpc07DAD426"
 
     val resources = template.get("Resources")
