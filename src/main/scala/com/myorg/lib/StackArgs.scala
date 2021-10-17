@@ -1,5 +1,6 @@
 package com.myorg.lib
 
-import software.amazon.awscdk.core.{Construct, StackProps}
+import software.amazon.awscdk.core
+import software.amazon.awscdk.core.StackProps
 
-case class StackArgs(scope: Construct, props: Option[StackProps] = None)
+case class StackArgs(app: core.App, props: Option[StackProps] = None)

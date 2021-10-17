@@ -1,9 +1,9 @@
 package com.myorg.example
 
 import com.myorg.lib.{CustomStack, StackArgs, StackFactory, StackId, StackWrapper}
-import software.amazon.awscdk.services.ec2.{ISecurityGroup, IVpc, Peer, Port, SecurityGroup, Vpc}
+import software.amazon.awscdk.services.ec2.{Peer, Port, SecurityGroup, Vpc}
 
-class VpcStack private (stack: CustomStack, val vpc: IVpc, val sgBastion: ISecurityGroup, val sgElb: ISecurityGroup)
+class VpcStack private (stack: CustomStack, val vpc: Vpc, val sgBastion: SecurityGroup, val sgElb: SecurityGroup)
     extends StackWrapper(stack)
 
 object VpcStack extends StackFactory {
@@ -12,13 +12,13 @@ object VpcStack extends StackFactory {
   def apply(args: StackArgs): VpcStack = {
     val stack = new CustomStack(id, args)
 
-    val vpc: IVpc = Vpc.Builder
+    val vpc = Vpc.Builder
       .create(stack, "SampleVpc")
       .cidr("10.0.0.0/16")
       .maxAzs(2)
       .build()
 
-    val sgBastion: ISecurityGroup = {
+    val sgBastion = {
       val sg = SecurityGroup.Builder
         .create(stack, "SampleSgBastion")
         .securityGroupName("sample-sg-bastion")
@@ -30,7 +30,7 @@ object VpcStack extends StackFactory {
       sg
     }
 
-    val sgElb: ISecurityGroup = {
+    val sgElb = {
       val sg = SecurityGroup.Builder
         .create(stack, "SampleSgElb")
         .securityGroupName("sample-sg-elb")

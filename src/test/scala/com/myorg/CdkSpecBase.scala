@@ -1,27 +1,20 @@
 package com.myorg
 
-import com.myorg.lib.{StackArgs, StackWrapper}
+import com.myorg.lib.StackWrapper
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.Assertions.fail
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should
 import play.api.libs.json.{JsNull, JsObject, JsValue, Json, Reads, Writes}
-import software.amazon.awscdk
-import software.amazon.awscdk.core
 
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.{IterableHasAsScala, MapHasAsScala}
 import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NonFatal
 
-abstract class CdkSpecBase extends AnyFunSuite with should.Matchers with TypeCheckedTripleEquals {
-  import com.myorg.CdkSpecBase._
-
-  protected lazy val testArgs: StackArgs = StackArgs(app)
-}
+abstract class CdkSpecBase extends AnyFunSuite with should.Matchers with TypeCheckedTripleEquals {}
 
 object CdkSpecBase {
-  private lazy val app: core.App = new awscdk.core.App
 
   @annotation.nowarn
   private lazy val BasicTypesWrites: Writes[Any] = {
@@ -60,7 +53,7 @@ object CdkSpecBase {
 
   implicit class StackWrapperOps(val value: StackWrapper) extends AnyVal {
     def toJson: JsValue = {
-      val template = app.synth.getStackArtifact(value.artifactId).getTemplate
+      val template = value.app.synth.getStackArtifact(value.artifactId).getTemplate
       Json.toJson(template: Any)(BasicTypesWrites)
     }
   }

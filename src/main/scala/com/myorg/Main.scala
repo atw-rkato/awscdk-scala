@@ -1,6 +1,6 @@
 package com.myorg
 
-import com.myorg.example.{Ec2BastionStack, VpcStack}
+import com.myorg.example.{Ec2BastionStack, Ec2ServerStack, VpcStack}
 import com.myorg.lib.StackArgs
 import software.amazon.awscdk.core
 
@@ -17,9 +17,10 @@ object Main {
   }
 
   private def createStacks(stackArgs: StackArgs): Unit = {
-    val vpcStack   = VpcStack(stackArgs)
-    val vpc        = vpcStack.vpc
-    val ec2Bastion = Ec2BastionStack(stackArgs, vpc, vpcStack.sgBastion)
+    val vpcStack = VpcStack(stackArgs)
+    val vpc      = vpcStack.vpc
+    Ec2BastionStack(stackArgs, vpc, vpcStack.sgBastion)
+    Ec2ServerStack(stackArgs, vpc)
 
     ()
   }

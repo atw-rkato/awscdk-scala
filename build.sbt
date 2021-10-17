@@ -52,5 +52,5 @@ lazy val cdkDependencies = Seq(
 
 lazy val testDependencies = Seq(
   "com.typesafe.play" %% "play-json" % "2.9.2",
-  "org.scalatest"     %% "scalatest" % "3.2.9",
+  "org.scalatest"     %% "scalatest" % "3.2.10",
 ).map { _ % Test }

@@ -1,5 +1,6 @@
 package com.myorg.lib
 
+import software.amazon.awscdk.core
 import software.amazon.awscdk.core.{ConstructNode, Stack}
 
 import scala.util.{Failure, Try}
@@ -8,7 +9,7 @@ trait ContextReads[A] {
   def tryRead(value: Any): Try[A]
 }
 
-class CustomStack(val id: StackId, args: StackArgs) extends Stack(args.scope, id.value, args.props.orNull) {
+class CustomStack(val id: StackId, val args: StackArgs) extends Stack(args.app, id.value, args.props.orNull) {
   private lazy val node: ConstructNode = getNode
 
   def tryGetContext[A: ContextReads](contextKey: String): Try[A] = {
@@ -41,6 +42,7 @@ trait StackFactory {
 abstract class StackWrapper(stack: CustomStack) {
   import scala.jdk.CollectionConverters.IterableHasAsScala
 
+  lazy val app: core.App                         = stack.args.app
   lazy val id: StackId                           = stack.id
   lazy val artifactId: String                    = stack.getArtifactId
   lazy val stackName: String                     = stack.getStackName
