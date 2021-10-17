@@ -39,7 +39,7 @@ trait StackFactory {
   }
 }
 
-abstract class StackWrapper(stack: CustomStack) {
+abstract class CustomStackWrapper(stack: CustomStack) {
   import scala.jdk.CollectionConverters.IterableHasAsScala
 
   lazy val app: core.App                         = stack.args.app

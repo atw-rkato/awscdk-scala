@@ -1,15 +1,19 @@
 package com.myorg.example
 
-import com.myorg.lib.{CustomStack, StackArgs, StackFactory, StackId, StackWrapper}
+import com.myorg.lib.{CustomStack, CustomStackWrapper, StackArgs, StackFactory, StackId}
 import software.amazon.awscdk.services.ec2.{Peer, Port, SecurityGroup, Vpc}
 
-class VpcStack private (stack: CustomStack, val vpc: Vpc, val sgBastion: SecurityGroup, val sgElb: SecurityGroup)
-    extends StackWrapper(stack)
+class SampleVpcStack private (
+  stack: CustomStack,
+  val vpc: Vpc,
+  val sgBastion: SecurityGroup,
+  val sgElb: SecurityGroup,
+) extends CustomStackWrapper(stack)
 
-object VpcStack extends StackFactory {
+object SampleVpcStack extends StackFactory {
   val id: StackId = StackId("vpc-stack")
 
-  def apply(args: StackArgs): VpcStack = {
+  def apply(args: StackArgs): SampleVpcStack = {
     val stack = new CustomStack(id, args)
 
     val vpc = Vpc.Builder
@@ -43,6 +47,6 @@ object VpcStack extends StackFactory {
       sg
     }
 
-    new VpcStack(stack, vpc, sgBastion, sgElb)
+    new SampleVpcStack(stack, vpc, sgBastion, sgElb)
   }
 }

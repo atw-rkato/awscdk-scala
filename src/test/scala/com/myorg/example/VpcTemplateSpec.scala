@@ -13,7 +13,7 @@ class VpcTemplateSpec extends CdkSpecBase {
   val sgElbId     = "SampleSgElb3916B66D"
 
   test("test VPC") {
-    val vpcStack = VpcStack(StackArgs(new core.App))
+    val vpcStack = SampleVpcStack(StackArgs(new core.App))
     val template = vpcStack.toJson
 
     val vpc = template.get("Resources").get(vpcId)
@@ -27,7 +27,7 @@ class VpcTemplateSpec extends CdkSpecBase {
   }
 
   test("test SecurityGroup for bastion server") {
-    val vpcStack = VpcStack(StackArgs(new core.App))
+    val vpcStack = SampleVpcStack(StackArgs(new core.App))
     val template = vpcStack.toJson
 
     val sgBastion = template.get("Resources").get(sgBastionId)
@@ -52,7 +52,7 @@ class VpcTemplateSpec extends CdkSpecBase {
   }
 
   test("test SecurityGroup for  load balancer") {
-    val vpcStack = VpcStack(StackArgs(new core.App))
+    val vpcStack = SampleVpcStack(StackArgs(new core.App))
     val template = vpcStack.toJson
 
     val sgElb = template.get("Resources").get(sgElbId)

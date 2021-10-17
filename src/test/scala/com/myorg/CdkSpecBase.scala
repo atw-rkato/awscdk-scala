@@ -1,6 +1,6 @@
 package com.myorg
 
-import com.myorg.lib.StackWrapper
+import com.myorg.lib.CustomStackWrapper
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.Assertions.fail
 import org.scalatest.funsuite.AnyFunSuite
@@ -51,7 +51,7 @@ object CdkSpecBase {
     case _                           => throw new UnsupportedOperationException
   }
 
-  implicit class StackWrapperOps(val value: StackWrapper) extends AnyVal {
+  implicit class StackWrapperOps(val value: CustomStackWrapper) extends AnyVal {
     def toJson: JsValue = {
       val template = value.app.synth.getStackArtifact(value.artifactId).getTemplate
       Json.toJson(template: Any)(BasicTypesWrites)

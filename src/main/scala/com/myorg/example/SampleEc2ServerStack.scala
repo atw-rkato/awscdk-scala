@@ -1,6 +1,6 @@
 package com.myorg.example
 
-import com.myorg.lib.{CustomStack, StackArgs, StackFactory, StackId, StackWrapper}
+import com.myorg.lib.{CustomStack, CustomStackWrapper, StackArgs, StackFactory, StackId}
 import software.amazon.awscdk.services.ec2.{
   AmazonLinuxGeneration,
   AmazonLinuxImage,
@@ -15,12 +15,13 @@ import software.amazon.awscdk.services.ec2.{
   Vpc,
 }
 
-class Ec2ServerStack private (stack: CustomStack, val web01: Instance, val web02: Instance) extends StackWrapper(stack)
+class SampleEc2ServerStack private (stack: CustomStack, val web01: Instance, val web02: Instance)
+    extends CustomStackWrapper(stack)
 
-object Ec2ServerStack extends StackFactory {
+object SampleEc2ServerStack extends StackFactory {
   val id: StackId = StackId("ec2-server-stack")
 
-  def apply(args: StackArgs, vpc: Vpc): Ec2ServerStack = {
+  def apply(args: StackArgs, vpc: Vpc): SampleEc2ServerStack = {
     val stack      = new CustomStack(id, args)
     val keyName    = stack.tryGetContext[String]("keyName").get
     val userScript = io.Source.fromResource("user-data/user-data-for-server.sh").mkString
@@ -28,7 +29,8 @@ object Ec2ServerStack extends StackFactory {
     val defaultSg = SecurityGroup.fromSecurityGroupId(stack, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
 
     val web01 = Instance.Builder
-      .create(stack, "sample-ec2-web01")
+      .create(stack, "SampleEc2Web01")
+      .instanceName("sample-ec2-web01")
       .machineImage(
         AmazonLinuxImage.Builder
           .create()
@@ -49,7 +51,8 @@ object Ec2ServerStack extends StackFactory {
       .build()
 
     val web02 = Instance.Builder
-      .create(stack, "sample-ec2-web02")
+      .create(stack, "SampleEc2Web02")
+      .instanceName("sample-ec2-web02")
       .machineImage(
         AmazonLinuxImage.Builder
           .create()
@@ -69,6 +72,6 @@ object Ec2ServerStack extends StackFactory {
       .keyName(keyName)
       .build()
 
-    new Ec2ServerStack(stack, web01, web02)
+    new SampleEc2ServerStack(stack, web01, web02)
   }
 }
