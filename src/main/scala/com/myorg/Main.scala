@@ -17,11 +17,11 @@ object Main {
   }
 
   private def createStacks(stackArgs: StackArgs): Unit = {
-    val vpcStack        = SampleVpcStack(stackArgs)
+    val vpcStack        = new SampleVpcStack(stackArgs)
     val vpc             = vpcStack.vpc
-    val ec2BastionStack = SampleEc2BastionStack(stackArgs, vpc, vpcStack.sgBastion)
-    val ec2ServerStack  = SampleEc2ServerStack(stackArgs, vpc)
-    val albStack        = SampleAlbStack(stackArgs, vpc, vpcStack.sgElb, ec2ServerStack.web01, ec2ServerStack.web02)
+    val ec2BastionStack = new SampleEc2BastionStack(stackArgs, vpc, vpcStack.sgBastion)
+    val ec2ServerStack  = new SampleEc2ServerStack(stackArgs, vpc)
+    val albStack        = new SampleAlbStack(stackArgs, vpc, vpcStack.sgElb, ec2ServerStack.web01, ec2ServerStack.web02)
 
     ()
   }

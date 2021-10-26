@@ -1,6 +1,6 @@
 package com.myorg
 
-import com.myorg.lib.CustomStackWrapper
+import com.myorg.lib.AbstractStack
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.Assertions.fail
 import org.scalatest.funsuite.AnyFunSuite
@@ -51,14 +51,14 @@ object CdkSpecBase {
     case _                           => throw new UnsupportedOperationException
   }
 
-  implicit class StackWrapperOps(val value: CustomStackWrapper) extends AnyVal {
+  implicit class TestStackOps(val value: AbstractStack) extends AnyVal {
     def toJson: JsValue = {
-      val template = value.app.synth.getStackArtifact(value.artifactId).getTemplate
+      val template = value.app.synth.getStackArtifact(value.getArtifactId).getTemplate
       Json.toJson(template: Any)(BasicTypesWrites)
     }
   }
 
-  implicit class JsValueOps(val value: JsValue) extends AnyVal {
+  implicit class TestJsValueOps(val value: JsValue) extends AnyVal {
     def get(fieldName: String): JsValue = value match {
       case _: JsObject =>
         try {

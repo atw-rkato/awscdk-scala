@@ -1,30 +1,25 @@
 package com.myorg.example
 
-import com.myorg.lib.{CustomStack, CustomStackWrapper, StackArgs, StackFactory, StackId}
+import com.myorg.lib.{AbstractStack, StackArgs, StackId}
 import software.amazon.awscdk.services.ec2.{Peer, Port, SecurityGroup, Vpc}
 
-class SampleVpcStack private (
-  stack: CustomStack,
-  val vpc: Vpc,
-  val sgBastion: SecurityGroup,
-  val sgElb: SecurityGroup,
-) extends CustomStackWrapper(stack)
-
-object SampleVpcStack extends StackFactory {
+object SampleVpcStack {
   val id: StackId = StackId("vpc-stack")
+}
 
-  def apply(args: StackArgs): SampleVpcStack = {
-    val stack = new CustomStack(id, args)
+class SampleVpcStack(args: StackArgs) extends AbstractStack(SampleVpcStack.id, args) {
+
+  val (vpc, sgBastion, sgElb) = {
 
     val vpc = Vpc.Builder
-      .create(stack, "SampleVpc")
+      .create(this, "SampleVpc")
       .cidr("10.0.0.0/16")
       .maxAzs(2)
       .build()
 
     val sgBastion = {
       val sg = SecurityGroup.Builder
-        .create(stack, "SampleSgBastion")
+        .create(this, "SampleSgBastion")
         .securityGroupName("sample-sg-bastion")
         .description("for bastion server")
         .vpc(vpc)
@@ -36,7 +31,7 @@ object SampleVpcStack extends StackFactory {
 
     val sgElb = {
       val sg = SecurityGroup.Builder
-        .create(stack, "SampleSgElb")
+        .create(this, "SampleSgElb")
         .securityGroupName("sample-sg-elb")
         .description("for load balancer")
         .vpc(vpc)
@@ -47,6 +42,6 @@ object SampleVpcStack extends StackFactory {
       sg
     }
 
-    new SampleVpcStack(stack, vpc, sgBastion, sgElb)
+    (vpc, sgBastion, sgElb)
   }
 }

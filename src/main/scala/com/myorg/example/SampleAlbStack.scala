@@ -1,6 +1,6 @@
 package com.myorg.example
 
-import com.myorg.lib.{CustomStack, CustomStackWrapper, StackArgs, StackFactory, StackId}
+import com.myorg.lib.{AbstractStack, StackArgs, StackId}
 import software.amazon.awscdk.services.ec2.{Instance, SecurityGroup, SubnetSelection, Vpc}
 import software.amazon.awscdk.services.elasticloadbalancingv2.targets.InstanceTarget
 import software.amazon.awscdk.services.elasticloadbalancingv2.{
@@ -10,18 +10,18 @@ import software.amazon.awscdk.services.elasticloadbalancingv2.{
   BaseApplicationListenerProps,
 }
 
-class SampleAlbStack private (stack: CustomStack, val alb: ApplicationLoadBalancer) extends CustomStackWrapper(stack)
-
-object SampleAlbStack extends StackFactory {
+object SampleAlbStack {
   val id: StackId = StackId("alb-stack")
+}
 
-  def apply(args: StackArgs, vpc: Vpc, sgElb: SecurityGroup, web01: Instance, web02: Instance): SampleAlbStack = {
-    val stack = new CustomStack(id, args)
+class SampleAlbStack(args: StackArgs, vpc: Vpc, sgElb: SecurityGroup, web01: Instance, web02: Instance)
+    extends AbstractStack(SampleAlbStack.id, args) {
 
-    val defaultSg = SecurityGroup.fromSecurityGroupId(stack, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
+  val alb: ApplicationLoadBalancer = {
+    val defaultSg = SecurityGroup.fromSecurityGroupId(this, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
 
     val alb = ApplicationLoadBalancer.Builder
-      .create(stack, "SampleElb")
+      .create(this, "SampleElb")
       .loadBalancerName("sample-elb")
       .internetFacing(true)
       .vpc(vpc)
@@ -32,7 +32,7 @@ object SampleAlbStack extends StackFactory {
     alb.addSecurityGroup(sgElb)
 
     val targetGroup = ApplicationTargetGroup.Builder
-      .create(stack, "sample-tg")
+      .create(this, "sample-tg")
       .vpc(vpc)
       .protocol(ApplicationProtocol.HTTP)
       .targets(
@@ -52,6 +52,6 @@ object SampleAlbStack extends StackFactory {
         .build(),
     )
 
-    new SampleAlbStack(stack, alb)
+    alb
   }
 }

@@ -1,6 +1,6 @@
 package com.myorg.example
 
-import com.myorg.lib.{CustomStack, CustomStackWrapper, StackArgs, StackFactory, StackId}
+import com.myorg.lib.{AbstractStack, StackArgs, StackId}
 import software.amazon.awscdk.services.ec2.{
   AmazonLinuxGeneration,
   AmazonLinuxImage,
@@ -15,29 +15,22 @@ import software.amazon.awscdk.services.ec2.{
   Vpc,
 }
 
-class SampleEc2ServerStack private (stack: CustomStack, val web01: Instance, val web02: Instance)
-    extends CustomStackWrapper(stack)
-
-object SampleEc2ServerStack extends StackFactory {
+object SampleEc2ServerStack {
   val id: StackId = StackId("ec2-server-stack")
+}
 
-  def apply(args: StackArgs, vpc: Vpc): SampleEc2ServerStack = {
-    val stack      = new CustomStack(id, args)
-    val keyName    = stack.tryGetContext[String]("keyName").get
+class SampleEc2ServerStack(args: StackArgs, vpc: Vpc) extends AbstractStack(SampleEc2ServerStack.id, args) {
+
+  lazy val (web01, web02) = {
+    val keyName    = tryGetContext[String]("keyName").get
     val userScript = io.Source.fromResource("user-data/user-data-for-server.sh").mkString
 
-    val defaultSg = SecurityGroup.fromSecurityGroupId(stack, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
+    val defaultSg = SecurityGroup.fromSecurityGroupId(this, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
 
     val web01 = Instance.Builder
-      .create(stack, "SampleEc2Web01")
+      .create(this, "SampleEc2Web01")
       .instanceName("sample-ec2-web01")
-      .machineImage(
-        AmazonLinuxImage.Builder
-          .create()
-          .generation(AmazonLinuxGeneration.AMAZON_LINUX_2)
-          .userData(UserData.forLinux(LinuxUserDataOptions.builder().shebang(userScript).build()))
-          .build()
-      )
+      .machineImage(amazonLinux2Image(userScript))
       .instanceType(InstanceType.of(InstanceClass.BURSTABLE2, InstanceSize.MICRO))
       .vpc(vpc)
       .vpcSubnets(
@@ -51,15 +44,9 @@ object SampleEc2ServerStack extends StackFactory {
       .build()
 
     val web02 = Instance.Builder
-      .create(stack, "SampleEc2Web02")
+      .create(this, "SampleEc2Web02")
       .instanceName("sample-ec2-web02")
-      .machineImage(
-        AmazonLinuxImage.Builder
-          .create()
-          .generation(AmazonLinuxGeneration.AMAZON_LINUX_2)
-          .userData(UserData.forLinux(LinuxUserDataOptions.builder().shebang(userScript).build()))
-          .build()
-      )
+      .machineImage(amazonLinux2Image(userScript))
       .instanceType(InstanceType.of(InstanceClass.BURSTABLE2, InstanceSize.MICRO))
       .vpc(vpc)
       .vpcSubnets(
@@ -72,6 +59,14 @@ object SampleEc2ServerStack extends StackFactory {
       .keyName(keyName)
       .build()
 
-    new SampleEc2ServerStack(stack, web01, web02)
+    (web01, web02)
+  }
+
+  private def amazonLinux2Image(userScript: String) = {
+    AmazonLinuxImage.Builder
+      .create()
+      .generation(AmazonLinuxGeneration.AMAZON_LINUX_2)
+      .userData(UserData.forLinux(LinuxUserDataOptions.builder().shebang(userScript).build()))
+      .build()
   }
 }
