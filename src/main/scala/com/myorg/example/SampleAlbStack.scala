@@ -18,19 +18,6 @@ class SampleAlbStack(args: StackArgs, vpc: Vpc, sgElb: SecurityGroup, web01: Ins
     extends AbstractStack(SampleAlbStack.id, args) {
 
   val alb: ApplicationLoadBalancer = {
-    val defaultSg = SecurityGroup.fromSecurityGroupId(this, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
-
-    val alb = ApplicationLoadBalancer.Builder
-      .create(this, "SampleElb")
-      .loadBalancerName("sample-elb")
-      .internetFacing(true)
-      .vpc(vpc)
-      .vpcSubnets(SubnetSelection.builder().subnets(vpc.getPublicSubnets).build())
-      .securityGroup(defaultSg)
-      .build()
-
-    alb.addSecurityGroup(sgElb)
-
     val targetGroup = ApplicationTargetGroup.Builder
       .create(this, "sample-tg")
       .vpc(vpc)
@@ -43,6 +30,18 @@ class SampleAlbStack(args: StackArgs, vpc: Vpc, sgElb: SecurityGroup, web01: Ins
       )
       .build()
 
+    val defaultSg = SecurityGroup.fromSecurityGroupId(this, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
+
+    val alb = ApplicationLoadBalancer.Builder
+      .create(this, "SampleElb")
+      .loadBalancerName("sample-elb")
+      .internetFacing(true)
+      .vpc(vpc)
+      .vpcSubnets(SubnetSelection.builder().subnets(vpc.getPublicSubnets).build())
+      .securityGroup(defaultSg)
+      .build()
+
+    alb.addSecurityGroup(sgElb)
     alb.addListener(
       "HTTP:80",
       BaseApplicationListenerProps

@@ -32,13 +32,7 @@ class SampleEc2BastionStack(args: StackArgs, vpc: Vpc, sgBastion: SecurityGroup)
     val bastion = Instance.Builder
       .create(this, "SampleEc2Bastion")
       .instanceName("sample-ec2-bastion")
-      .machineImage(
-        AmazonLinuxImage.Builder
-          .create()
-          .generation(AmazonLinuxGeneration.AMAZON_LINUX_2)
-          .userData(UserData.forLinux(LinuxUserDataOptions.builder().shebang(userScript).build()))
-          .build()
-      )
+      .machineImage(amazonLinux2Image(userScript))
       .instanceType(InstanceType.of(InstanceClass.BURSTABLE2, InstanceSize.MICRO))
       .vpc(vpc)
       .vpcSubnets(SubnetSelection.builder().subnetType(SubnetType.PUBLIC).build())
@@ -49,5 +43,13 @@ class SampleEc2BastionStack(args: StackArgs, vpc: Vpc, sgBastion: SecurityGroup)
     bastion.addSecurityGroup(sgBastion)
 
     bastion
+  }
+
+  private def amazonLinux2Image(userScript: String) = {
+    AmazonLinuxImage.Builder
+      .create()
+      .generation(AmazonLinuxGeneration.AMAZON_LINUX_2)
+      .userData(UserData.forLinux(LinuxUserDataOptions.builder().shebang(userScript).build()))
+      .build()
   }
 }
