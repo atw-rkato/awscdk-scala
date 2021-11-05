@@ -4,7 +4,7 @@ import com.myorg.lib.AbstractStack
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.Assertions.fail
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalatest.matchers.should
+import org.scalatest.matchers.must
 import play.api.libs.json.{JsNull, JsObject, JsValue, Json, Reads, Writes}
 
 import scala.collection.immutable.ArraySeq
@@ -12,7 +12,7 @@ import scala.jdk.CollectionConverters.{IterableHasAsScala, MapHasAsScala}
 import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NonFatal
 
-abstract class CdkSpecBase extends AnyFunSuite with should.Matchers with TypeCheckedTripleEquals {}
+abstract class CdkSpecBase extends AnyFunSuite with must.Matchers with TypeCheckedTripleEquals {}
 
 object CdkSpecBase {
 
