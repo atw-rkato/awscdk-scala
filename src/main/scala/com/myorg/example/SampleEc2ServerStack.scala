@@ -21,7 +21,7 @@ object SampleEc2ServerStack {
 
 class SampleEc2ServerStack(args: StackArgs, vpc: Vpc) extends AbstractStack(SampleEc2ServerStack.id, args) {
 
-  lazy val (web01, web02) = {
+  lazy val (web01: Instance, web02: Instance) = {
     val keyName    = tryGetContext[String]("keyName").get
     val userScript = io.Source.fromResource("user-data/user-data-for-server.sh").mkString
 
