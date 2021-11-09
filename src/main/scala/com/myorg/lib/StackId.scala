@@ -11,5 +11,6 @@ case class StackId(value: String) {
 }
 
 object StackId {
-  private val pattern = Pattern.compile("""^[A-Za-z][A-Za-z0-9-]+$""")
+  private lazy val regex   = """^[A-Za-z][A-Za-z0-9-]+$"""
+  private lazy val pattern = Pattern.compile(regex)
 }

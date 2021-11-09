@@ -9,7 +9,7 @@ object SampleVpcStack {
 
 class SampleVpcStack(args: StackArgs) extends AbstractStack(SampleVpcStack.id, args) {
 
-  val (vpc, sgBastion, sgElb) = {
+  val (vpc: Vpc, sgBastion: SecurityGroup, sgElb: SecurityGroup) = {
 
     val vpc = Vpc.Builder
       .create(this, "SampleVpc")

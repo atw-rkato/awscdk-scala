@@ -16,6 +16,7 @@ object Main {
     ()
   }
 
+  //noinspection ScalaUnusedSymbol
   private def createStacks(stackArgs: StackArgs): Unit = {
     val vpcStack        = new SampleVpcStack(stackArgs)
     val vpc             = vpcStack.vpc

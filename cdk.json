@@ -2,5 +2,8 @@
   "app": "sbt run",
   "profile": "my-aws",
   "versionReporting": false,
-  "requireApproval": "never"
+  "requireApproval": "never",
+  "context": {
+    "keyName": "${KEY_NAME}"
+  }
 }

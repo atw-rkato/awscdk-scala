@@ -5,10 +5,6 @@ import software.amazon.awscdk.core.{Stack, StackProps}
 
 import scala.util.{Failure, Try}
 
-trait ContextReads[A] {
-  def tryRead(value: Any): Try[A]
-}
-
 case class StackArgs(app: core.App, props: Option[StackProps] = None)
 
 abstract class AbstractStack(val id: StackId, val args: StackArgs)
@@ -49,6 +45,10 @@ trait StackFactory {
 
     ju.Collections.unmodifiableMap(m)
   }
+}
+
+trait ContextReads[A] {
+  def tryRead(value: Any): Try[A]
 }
 
 trait CdkContext {
