@@ -5,7 +5,7 @@ lazy val root = (project in file("."))
     organization := "com.myorg",
     name := "awscdk-scala-samples",
     version := "0.1",
-    scalaVersion := "2.13.6",
+    scalaVersion := "2.13.7",
     scalacOptions ++= Seq(
       "-encoding",
       "UTF-8",
@@ -23,12 +23,13 @@ lazy val root = (project in file("."))
     libraryDependencies ++= cdkDependencies ++ testDependencies,
   )
 
-lazy val cdkVersion = "1.128.0"
+lazy val cdkVersion = "1.134.0"
 lazy val cdkDependencies = Seq(
   "software.amazon.awscdk" % "core"                           % cdkVersion,
   "software.amazon.awscdk" % "elasticloadbalancingv2"         % cdkVersion,
   "software.amazon.awscdk" % "elasticloadbalancingv2-targets" % cdkVersion,
   "software.amazon.awscdk" % "ec2"                            % cdkVersion,
+  "software.amazon.awscdk" % "rds"                            % cdkVersion,
 //  "software.amazon.awscdk" % "autoscaling"                    % cdkVersion,
 //  "software.amazon.awscdk" % "apigateway"                     % cdkVersion,
 //  "software.amazon.awscdk" % "dynamodb"                       % cdkVersion,

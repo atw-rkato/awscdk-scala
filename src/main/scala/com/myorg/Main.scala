@@ -1,6 +1,6 @@
 package com.myorg
 
-import com.myorg.example.{SampleAlbStack, SampleEc2BastionStack, SampleEc2ServerStack, SampleVpcStack}
+import com.myorg.example.{SampleAlbStack, SampleEc2BastionStack, SampleEc2ServerStack, SampleRdsStack, SampleVpcStack}
 import com.myorg.lib.StackArgs
 import software.amazon.awscdk.core
 
@@ -23,6 +23,7 @@ object Main {
     val ec2BastionStack = new SampleEc2BastionStack(stackArgs, vpc, vpcStack.sgBastion)
     val ec2ServerStack  = new SampleEc2ServerStack(stackArgs, vpc)
     val albStack        = new SampleAlbStack(stackArgs, vpc, vpcStack.sgElb, ec2ServerStack.web01, ec2ServerStack.web02)
+    val rds             = new SampleRdsStack(stackArgs, vpc)
 
     ()
   }
