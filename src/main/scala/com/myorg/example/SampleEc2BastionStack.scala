@@ -1,5 +1,6 @@
 package com.myorg.example
 
+import com.myorg.example.context.ContextKeys
 import com.myorg.lib.{AbstractStack, StackArgs, StackId}
 import software.amazon.awscdk.services.ec2.{
   AmazonLinuxGeneration,
@@ -24,7 +25,7 @@ class SampleEc2BastionStack(args: StackArgs, vpc: Vpc, sgBastion: SecurityGroup)
     extends AbstractStack(SampleEc2BastionStack.id, args) {
 
   val bastion: Instance = {
-    val keyName    = tryGetContext[String]("keyName").get
+    val keyName    = tryGetContext[String](ContextKeys.KeyName).get
     val userScript = io.Source.fromResource("user-data/user-data-for-bastion.sh").mkString
 
     val defaultSg = SecurityGroup.fromSecurityGroupId(this, "DefaultSg", vpc.getVpcDefaultSecurityGroup)

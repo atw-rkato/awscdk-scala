@@ -1,7 +1,7 @@
 package com.myorg.example
 
 import com.myorg.lib.{AbstractStack, StackArgs, StackId}
-import software.amazon.awscdk.core.Duration
+import software.amazon.awscdk.core.{Duration, RemovalPolicy}
 import software.amazon.awscdk.services.ec2.{
   InstanceClass,
   InstanceSize,
@@ -53,11 +53,13 @@ class SampleRdsStack(args: StackArgs, vpc: Vpc) extends AbstractStack(SampleRdsS
       .build()
 
     val defaultSg = SecurityGroup.fromSecurityGroupId(this, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
+
     DatabaseInstance.Builder
       .create(this, "SampleDb")
       .instanceIdentifier("sample-db")
       .engine(engine)
       .instanceType(InstanceType.of(InstanceClass.BURSTABLE2, InstanceSize.MICRO))
+      .removalPolicy(RemovalPolicy.DESTROY)
       .allocatedStorage(20)
       .maxAllocatedStorage(1000)
       .backupRetention(Duration.days(7))
