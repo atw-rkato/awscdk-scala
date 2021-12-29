@@ -16,9 +16,9 @@ lazy val root = (project in file("."))
       "-Ywarn-dead-code",
       "-Ywarn-numeric-widen",
       "-Ywarn-value-discard",
-//      "-Wconf:cat=lint-byname-implicit:s,any:e",
+      //      "-Wconf:cat=lint-byname-implicit:s,any:e",
     ),
-    javacOptions ++= Seq("-source", "11", "-target", "11", "-encoding", "UTF-8"),
+    javacOptions ++= Seq("-source", "17", "-target", "17", "-encoding", "UTF-8"),
     scalafmtConfig := file(".scalafmt.conf"),
     libraryDependencies ++= cdkDependencies ++ testDependencies,
   )

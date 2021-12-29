@@ -9,9 +9,10 @@ import software.amazon.awscdk.core.AppProps
 
 class SampleVpcStackSpec extends CdkSpecBase {
 
-  val vpcId       = "SampleVpc07DAD426"
-  val sgBastionId = "SampleSgBastion1679A31B"
-  val sgElbId     = "SampleSgElb3916B66D"
+  val vpcId          = "SampleVpc07DAD426"
+  val publicSubnetId = "SampleVpcPublicSubnet1Subnet365106BA"
+  val sgBastionId    = "SampleSgBastion1679A31B"
+  val sgElbId        = "SampleSgElb3916B66D"
 
   private def getTemplate(context: java.util.Map[String, Any] = TestProps.Context): JsValue = {
     val stackArgs = StackArgs(new core.App(AppProps.builder().context(context).build()))
@@ -29,6 +30,26 @@ class SampleVpcStackSpec extends CdkSpecBase {
       val properties = vpc.get("Properties")
       assert(properties.get("CidrBlock").to[String] === "10.0.0.0/16")
       assert(properties.get("EnableDnsHostnames").to[Boolean] === true)
+      assert(properties.get("EnableDnsSupport").to[Boolean] === true)
+      assert(properties.get("InstanceTenancy").to[String] === "default")
+      val tags = properties.get("Tags").to[JsArray]
+      assert(tags.value.size === 1)
+      assert(tags(0) === Json.obj("Key" -> "Name", "Value" -> "vpc-stack/SampleVpc"))
+    }
+  }
+
+  "Subnet" - {
+    "env test" in {
+      val template = getTemplate()
+
+      val vpc = template.get("Resources").get(publicSubnetId)
+      assert(vpc.get("Type").to[String] === "AWS::EC2::Subnet")
+
+      val properties = vpc.get("Properties")
+      assert(properties.get("CidrBlock").to[String] === "10.0.0.0/18")
+      assert(properties.get("VpcId") === Json.obj("Ref" -> vpcId))
+      assert(properties.get("AvailabilityZone") === Json.obj("Fn::Select" -> Json.arr(0, Json.obj("Fn::GetAZs" -> ""))))
+      assert(properties.get("MapPublicIpOnLaunch").to[Boolean] === true)
       assert(properties.get("EnableDnsSupport").to[Boolean] === true)
       assert(properties.get("InstanceTenancy").to[String] === "default")
     }

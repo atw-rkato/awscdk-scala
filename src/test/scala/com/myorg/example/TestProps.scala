@@ -6,7 +6,7 @@ import java.{util => ju}
 import scala.jdk.CollectionConverters.MapHasAsJava
 
 object TestProps {
-  val Context: ju.Map[String, Any] = {
+  lazy val Context: ju.Map[String, Any] = {
     val c = Map[String, Any](
       ContextKeys.KeyName -> "testKeyName"
     )
