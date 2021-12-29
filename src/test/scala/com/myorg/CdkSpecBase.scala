@@ -14,6 +14,7 @@ import scala.util.control.NonFatal
 abstract class CdkSpecBase extends AnyFreeSpec with TypeCheckedTripleEquals
 
 object CdkSpecBase {
+
   import java.{lang => jl, math => jm, time => jt, util => ju}
 
   @annotation.nowarn
@@ -68,6 +69,8 @@ object CdkSpecBase {
         }
       case _ => fail(s"cannot get '$fieldName' because ${Json.prettyPrint(value)} is not a JsObject")
     }
+
+    def has(fieldName: String): Boolean = (value \ fieldName).isDefined
 
     def to[A: ClassTag](implicit fjs: Reads[A]): A = {
       value.validate.fold(
