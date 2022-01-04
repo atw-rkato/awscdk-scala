@@ -75,7 +75,10 @@ object CdkSpecBase {
     def to[A: ClassTag](implicit fjs: Reads[A]): A = {
       value.validate.fold(
         err => {
-          val errors = err.flatMap(_._2).flatMap(_.messages)
+          val errors = {
+            val validationErrors = err.flatMap { case (_, validationErrors) => validationErrors }
+            validationErrors.flatMap(_.messages)
+          }
           val msg =
             s"${value.getClass.getSimpleName}($value) cannot convert to ${classTag[A].runtimeClass.getSimpleName}"
 

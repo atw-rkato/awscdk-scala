@@ -14,12 +14,14 @@ import software.amazon.awscdk.services.ec2.{
   UserData,
   Vpc,
 }
+import software.amazon.awscdk.services.iam.Role
 
 object SampleEc2ServerStack {
   val id: StackId = StackId("ec2-server-stack")
 }
 
-class SampleEc2ServerStack(args: StackArgs, vpc: Vpc) extends AbstractStack(SampleEc2ServerStack.id, args) {
+class SampleEc2ServerStack(args: StackArgs, vpc: Vpc, webRole: Role)
+    extends AbstractStack(SampleEc2ServerStack.id, args) {
 
   lazy val (web01: Instance, web02: Instance) = {
     val keyName    = tryGetContext[String]("keyName").get
@@ -41,6 +43,7 @@ class SampleEc2ServerStack(args: StackArgs, vpc: Vpc) extends AbstractStack(Samp
       )
       .securityGroup(defaultSg)
       .keyName(keyName)
+      .role(webRole)
       .build()
 
     val web02 = Instance.Builder
@@ -57,6 +60,7 @@ class SampleEc2ServerStack(args: StackArgs, vpc: Vpc) extends AbstractStack(Samp
       )
       .securityGroup(defaultSg)
       .keyName(keyName)
+      .role(webRole)
       .build()
 
     (web01, web02)
