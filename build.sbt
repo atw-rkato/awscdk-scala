@@ -5,7 +5,7 @@ lazy val root = (project in file("."))
     organization := "com.myorg",
     name := "awscdk-scala-samples",
     version := "0.1",
-    scalaVersion := "2.13.7",
+    scalaVersion := "2.13.8",
     scalacOptions ++= Seq(
       "-encoding",
       "UTF-8",
@@ -16,7 +16,7 @@ lazy val root = (project in file("."))
       "-Ywarn-dead-code",
       "-Ywarn-numeric-widen",
       "-Ywarn-value-discard",
-      //      "-Wconf:cat=lint-byname-implicit:s,any:e",
+      "-Wconf:cat=lint-byname-implicit:s",
     ),
     javacOptions ++= Seq("-source", "11", "-target", "11", "-encoding", "UTF-8"),
     scalafmtConfig := file(".scalafmt.conf"),
@@ -24,7 +24,7 @@ lazy val root = (project in file("."))
   )
 
 // https://mvnrepository.com/artifact/software.amazon.awscdk/core
-lazy val cdkVersion = "1.137.0"
+lazy val cdkVersion = "1.149.0"
 lazy val cdkDependencies = Seq(
   "software.amazon.awscdk" % "core"                           % cdkVersion,
   "software.amazon.awscdk" % "elasticloadbalancingv2"         % cdkVersion,
@@ -55,5 +55,5 @@ lazy val cdkDependencies = Seq(
 
 lazy val testDependencies = Seq(
   "com.typesafe.play" %% "play-json" % "2.9.2",
-  "org.scalatest"     %% "scalatest" % "3.2.10",
+  "org.scalatest"     %% "scalatest" % "3.2.11",
 ).map { _ % Test }
