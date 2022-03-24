@@ -23,7 +23,7 @@ object SampleEc2ServerStack {
 class SampleEc2ServerStack(args: StackArgs, vpc: Vpc, webRole: Role)
     extends AbstractStack(SampleEc2ServerStack.id, args) {
 
-  lazy val (web01: Instance, web02: Instance) = {
+  val (web01: Instance, web02: Instance) = {
     val keyName    = tryGetContext[String]("keyName").get
     val userScript = io.Source.fromResource("user-data/user-data-for-server.sh").mkString
 
@@ -66,7 +66,7 @@ class SampleEc2ServerStack(args: StackArgs, vpc: Vpc, webRole: Role)
     (web01, web02)
   }
 
-  private def amazonLinux2Image(userScript: String) = {
+  private def amazonLinux2Image(userScript: String): AmazonLinuxImage = {
     AmazonLinuxImage.Builder
       .create()
       .generation(AmazonLinuxGeneration.AMAZON_LINUX_2)

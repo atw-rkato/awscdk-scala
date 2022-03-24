@@ -14,15 +14,15 @@ object SampleEc2BastionStackSpec {
 
   private def getTemplate(context: java.util.Map[String, Any] = TestProps.Context): JsValue = {
     val stackArgs       = StackArgs(new core.App(AppProps.builder().context(context).build()))
-    val vpcStack        = new SampleVpcStack(stackArgs)
-    val ec2BastionStack = new SampleEc2BastionStack(stackArgs, vpcStack.vpc, vpcStack.sgBastion)
+    val vpcStack        = SampleVpcStack(stackArgs)
+    val ec2BastionStack = SampleEc2BastionStack(stackArgs, vpcStack.vpc, vpcStack.sgBastion)
     ec2BastionStack.toJson
   }
 }
 
 class SampleEc2BastionStackSpec extends CdkSpecBase {
 
-  import SampleEc2BastionStackSpec._
+  import SampleEc2BastionStackSpec.*
 
   "EC2 for bastion" - {
     "env test" - {

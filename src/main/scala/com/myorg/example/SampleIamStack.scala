@@ -11,25 +11,21 @@ object SampleIamStack {
 class SampleIamStack(args: StackArgs) extends AbstractStack(SampleIamStack.id, args) {
 
   val webRole: Role = {
-    val scopedAws = new ScopedAws(this)
     val urlSuffix = scopedAws.getUrlSuffix
 
+    val roleName = "sample-role-web"
     val webRole = Role.Builder
       .create(this, "SampleS3Role")
       .assumedBy(ServicePrincipal.Builder.create(s"ec2.${urlSuffix}").build())
-      .managedPolicies(
-        jList(
-          ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")
-        )
-      )
-      .roleName("sample-role-web")
+      .managedPolicies(jList(ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")))
+      .roleName(roleName)
       .description("upload images")
       .build()
 
     CfnInstanceProfile.Builder
       .create(this, "SampleS3RoleInstanceProfile")
-      .instanceProfileName(webRole.getRoleName)
-      .roles(jList(webRole.getRoleName))
+      .instanceProfileName(roleName)
+      .roles(jList(roleName))
       .build()
 
     webRole

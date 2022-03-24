@@ -10,7 +10,6 @@ object SampleVpcStack {
 class SampleVpcStack(args: StackArgs) extends AbstractStack(SampleVpcStack.id, args) {
 
   val (vpc: Vpc, sgBastion: SecurityGroup, sgElb: SecurityGroup) = {
-
     val vpc = Vpc.Builder
       .create(this, "SampleVpc")
       .cidr("10.0.0.0/16")
@@ -25,7 +24,7 @@ class SampleVpcStack(args: StackArgs) extends AbstractStack(SampleVpcStack.id, a
         .vpc(vpc)
         .build()
 
-      sg.addIngressRule(Peer.anyIpv4, Port.tcp(22))
+      sg.addIngressRule(Peer.anyIpv4(), Port.tcp(22))
       sg
     }
 
@@ -37,8 +36,8 @@ class SampleVpcStack(args: StackArgs) extends AbstractStack(SampleVpcStack.id, a
         .vpc(vpc)
         .build()
 
-      sg.addIngressRule(Peer.anyIpv4, Port.tcp(80))
-      sg.addIngressRule(Peer.anyIpv4, Port.tcp(443))
+      sg.addIngressRule(Peer.anyIpv4(), Port.tcp(80))
+      sg.addIngressRule(Peer.anyIpv4(), Port.tcp(443))
       sg
     }
 

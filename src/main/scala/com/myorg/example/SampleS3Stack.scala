@@ -10,15 +10,11 @@ object SampleS3Stack {
 
 class SampleS3Stack(args: StackArgs) extends AbstractStack(SampleS3Stack.id, args) {
 
-  val s3Bucket: Bucket = {
-    val s3Bucket = Bucket.Builder
-      .create(this, "SampleS3Bucket")
-      .bucketName("my-sample-s3-bucket-ap-northeast-1")
-      .blockPublicAccess(BlockPublicAccess.BLOCK_ALL)
-      .removalPolicy(RemovalPolicy.DESTROY)
-      .objectOwnership(ObjectOwnership.BUCKET_OWNER_ENFORCED)
-      .build()
-
-    s3Bucket
-  }
+  val s3Bucket: Bucket = Bucket.Builder
+    .create(this, "SampleS3Bucket")
+    .bucketName("my-sample-s3-bucket-ap-northeast-1")
+    .blockPublicAccess(BlockPublicAccess.BLOCK_ALL)
+    .removalPolicy(RemovalPolicy.DESTROY)
+    .objectOwnership(ObjectOwnership.BUCKET_OWNER_ENFORCED)
+    .build()
 }

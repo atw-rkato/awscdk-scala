@@ -3,20 +3,22 @@ import org.scalafmt.sbt.ScalafmtPlugin.autoImport.scalafmtConfig
 lazy val root = (project in file("."))
   .settings(
     organization := "com.myorg",
-    name := "awscdk-scala-samples",
-    version := "0.1",
-    scalaVersion := "2.13.8",
+    name         := "awscdk-scala-samples",
+    version      := "0.1",
+    //    scalaVersion := "2.13.8",
+    scalaVersion := "3.1.0",
     scalacOptions ++= Seq(
       "-encoding",
       "UTF-8",
       "-deprecation",
       "-feature",
       "-unchecked",
-      "-Xlint",
-      "-Ywarn-dead-code",
-      "-Ywarn-numeric-widen",
-      "-Ywarn-value-discard",
-      "-Wconf:cat=lint-byname-implicit:s",
+      //      "-Xlint",
+      //      "-Ywarn-dead-code",
+      //      "-Ywarn-numeric-widen",
+      //      "-Ywarn-value-discard",
+      //      "-Yexplicit-nulls",
+      //      "-Wconf:cat=lint-byname-implicit:s",
     ),
     javacOptions ++= Seq("-source", "11", "-target", "11", "-encoding", "UTF-8"),
     scalafmtConfig := file(".scalafmt.conf"),
@@ -54,6 +56,6 @@ lazy val cdkDependencies = Seq(
 )
 
 lazy val testDependencies = Seq(
-  "com.typesafe.play" %% "play-json" % "2.9.2",
+  "com.typesafe.play" %% "play-json" % "2.10.0-RC6",
   "org.scalatest"     %% "scalatest" % "3.2.11",
 ).map { _ % Test }
