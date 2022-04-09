@@ -22,14 +22,14 @@ object SampleVpcStackSpec {
 
   private def getTemplate(context: java.util.Map[String, Any] = TestProps.Context): JsValue = {
     val stackArgs = StackArgs(new core.App(AppProps.builder().context(context).build()))
-    val vpcStack  = new SampleVpcStack(stackArgs)
+    val vpcStack  = SampleVpcStack(stackArgs)
     vpcStack.toJson
   }
 }
 
 class SampleVpcStackSpec extends CdkSpecBase {
 
-  import SampleVpcStackSpec._
+  import SampleVpcStackSpec.*
 
   "VPC" - {
     "env test" in {

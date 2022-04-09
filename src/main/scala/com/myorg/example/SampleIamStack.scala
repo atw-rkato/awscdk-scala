@@ -1,21 +1,18 @@
 package com.myorg.example
 
-import com.myorg.lib.{AbstractStack, StackArgs, StackId}
-import software.amazon.awscdk.core.ScopedAws
+import com.myorg.lib.{MyStack, StackArgs, StackFactory, StackId, StackWrapper}
 import software.amazon.awscdk.services.iam.{CfnInstanceProfile, ManagedPolicy, Role, ServicePrincipal}
 
-object SampleIamStack {
+object SampleIamStack extends StackFactory {
   val id: StackId = StackId("iam-stack")
-}
 
-class SampleIamStack(args: StackArgs) extends AbstractStack(SampleIamStack.id, args) {
-
-  val webRole: Role = {
-    val urlSuffix = scopedAws.getUrlSuffix
+  def apply(stackArgs: StackArgs): SampleIamStack = {
+    val stack     = MyStack(SampleIamStack.id, stackArgs)
+    val urlSuffix = stack.scopedAws.getUrlSuffix
 
     val roleName = "sample-role-web"
     val webRole = Role.Builder
-      .create(this, "SampleS3Role")
+      .create(stack, "SampleS3Role")
       .assumedBy(ServicePrincipal.Builder.create(s"ec2.${urlSuffix}").build())
       .managedPolicies(jList(ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")))
       .roleName(roleName)
@@ -23,11 +20,13 @@ class SampleIamStack(args: StackArgs) extends AbstractStack(SampleIamStack.id, a
       .build()
 
     CfnInstanceProfile.Builder
-      .create(this, "SampleS3RoleInstanceProfile")
+      .create(stack, "SampleS3RoleInstanceProfile")
       .instanceProfileName(roleName)
       .roles(jList(roleName))
       .build()
 
-    webRole
+    new SampleIamStack(stack, webRole)
   }
 }
+
+class SampleIamStack private (stack: MyStack, val webRole: Role) extends StackWrapper(stack)

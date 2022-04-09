@@ -1,7 +1,7 @@
 package com.myorg.example
 
 import com.myorg.example.context.ContextKeys
-import com.myorg.lib.{AbstractStack, StackArgs, StackId}
+import com.myorg.lib.{MyStack, StackArgs, StackFactory, StackId, StackWrapper}
 import software.amazon.awscdk.services.ec2.{
   AmazonLinuxGeneration,
   AmazonLinuxImage,
@@ -17,21 +17,18 @@ import software.amazon.awscdk.services.ec2.{
   Vpc,
 }
 
-object SampleEc2BastionStack {
+object SampleEc2BastionStack extends StackFactory {
   val id: StackId = StackId("ec2-bastion-stack")
-}
 
-class SampleEc2BastionStack(args: StackArgs, vpc: Vpc, sgBastion: SecurityGroup)
-    extends AbstractStack(SampleEc2BastionStack.id, args) {
-
-  val bastion: Instance = {
-    val keyName    = tryGetContext[String](ContextKeys.KeyName).get
+  def apply(stackArgs: StackArgs, vpc: Vpc, sgBastion: SecurityGroup): SampleEc2BastionStack = {
+    val stack      = MyStack(this.id, stackArgs)
+    val keyName    = stack.tryGetContext[String](ContextKeys.KeyName).get
     val userScript = io.Source.fromResource("user-data/user-data-for-bastion.sh").mkString
 
-    val defaultSg = SecurityGroup.fromSecurityGroupId(this, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
+    val defaultSg = SecurityGroup.fromSecurityGroupId(stack, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
 
     val bastion = Instance.Builder
-      .create(this, "SampleEc2Bastion")
+      .create(stack, "SampleEc2Bastion")
       .instanceName("sample-ec2-bastion")
       .machineImage(amazonLinux2Image(userScript))
       .instanceType(InstanceType.of(InstanceClass.BURSTABLE2, InstanceSize.MICRO))
@@ -43,7 +40,7 @@ class SampleEc2BastionStack(args: StackArgs, vpc: Vpc, sgBastion: SecurityGroup)
 
     bastion.addSecurityGroup(sgBastion)
 
-    bastion
+    new SampleEc2BastionStack(stack, bastion)
   }
 
   private def amazonLinux2Image(userScript: String) = {
@@ -54,3 +51,5 @@ class SampleEc2BastionStack(args: StackArgs, vpc: Vpc, sgBastion: SecurityGroup)
       .build()
   }
 }
+
+class SampleEc2BastionStack private (stack: MyStack, val bastion: Instance) extends StackWrapper(stack)

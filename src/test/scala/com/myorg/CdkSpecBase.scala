@@ -1,6 +1,6 @@
 package com.myorg
 
-import com.myorg.lib.AbstractStack
+import com.myorg.lib.{MyStack, StackWrapper}
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.Assertions.fail
 import org.scalatest.freespec.AnyFreeSpec
@@ -15,7 +15,7 @@ abstract class CdkSpecBase extends AnyFreeSpec with TypeCheckedTripleEquals
 
 object CdkSpecBase {
 
-  import java.{lang => jl, math => jm, time => jt, util => ju}
+  import java.{lang as jl, math as jm, time as jt, util as ju}
 
   @annotation.nowarn
   private[this] implicit def BasicTypesWrites: Writes[Any] = {
@@ -52,9 +52,9 @@ object CdkSpecBase {
     case _                         => throw new UnsupportedOperationException
   }
 
-  implicit class TestStackOps(val value: AbstractStack) extends AnyVal {
+  implicit class TestStackOps(val component: StackWrapper) extends AnyVal {
     def toJson: JsValue = {
-      val template = value.app.synth.getStackArtifact(value.getArtifactId).getTemplate
+      val template = component.app.synth.getStackArtifact(component.artifactId).getTemplate
       Json.toJson(template: Any)
     }
   }

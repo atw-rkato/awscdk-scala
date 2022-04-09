@@ -1,6 +1,6 @@
 package com.myorg.example
 
-import com.myorg.lib.{AbstractStack, StackArgs, StackId}
+import com.myorg.lib.{MyStack, StackArgs, StackFactory, StackId, StackWrapper}
 import software.amazon.awscdk.core.{Duration, RemovalPolicy}
 import software.amazon.awscdk.services.ec2.{
   InstanceClass,
@@ -21,41 +21,39 @@ import software.amazon.awscdk.services.rds.{
   SubnetGroup,
 }
 
-object SampleRdsStack {
+object SampleRdsStack extends StackFactory {
   val id: StackId = StackId("rds-stack")
-}
 
-class SampleRdsStack(args: StackArgs, vpc: Vpc) extends AbstractStack(SampleRdsStack.id, args) {
-
-  val db: DatabaseInstance = {
+  def apply(stackArgs: StackArgs, vpc: Vpc): SampleRdsStack = {
+    val stack = MyStack(this.id, stackArgs)
     val engine =
       DatabaseInstanceEngine.mysql(MySqlInstanceEngineProps.builder().version(MysqlEngineVersion.VER_8_0_26).build())
 
     val parameterGroup = ParameterGroup.Builder
-      .create(this, "SampleDbPg")
+      .create(stack, "SampleDbPg")
       .engine(engine)
       .description("sample parameter group")
       .build()
 
     val optionGroup = OptionGroup.Builder
-      .create(this, "SampleDbOg")
+      .create(stack, "SampleDbOg")
       .engine(engine)
       .description("sample option group")
       .configurations(jList())
       .build()
 
     val subnetGroup = SubnetGroup.Builder
-      .create(this, "SampleDbSubnet")
+      .create(stack, "SampleDbSubnet")
       .subnetGroupName("sample-db-subnet")
       .description("sample db subnet")
       .vpc(vpc)
       .vpcSubnets(SubnetSelection.builder().subnets(vpc.getPrivateSubnets).build())
       .build()
 
-    val defaultSg = SecurityGroup.fromSecurityGroupId(this, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
+    val defaultSg = SecurityGroup.fromSecurityGroupId(stack, "DefaultSg", vpc.getVpcDefaultSecurityGroup)
 
-    DatabaseInstance.Builder
-      .create(this, "SampleDb")
+    val db = DatabaseInstance.Builder
+      .create(stack, "SampleDb")
       .instanceIdentifier("sample-db")
       .engine(engine)
       .instanceType(InstanceType.of(InstanceClass.BURSTABLE2, InstanceSize.MICRO))
@@ -71,5 +69,9 @@ class SampleRdsStack(args: StackArgs, vpc: Vpc) extends AbstractStack(SampleRdsS
       .parameterGroup(parameterGroup)
       .optionGroup(optionGroup)
       .build()
+
+    new SampleRdsStack(stack, db)
   }
 }
+
+class SampleRdsStack private (stack: MyStack, val db: DatabaseInstance) extends StackWrapper(stack)
