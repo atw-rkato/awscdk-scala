@@ -1,14 +1,15 @@
 package com.myorg.example
 
-import com.myorg.lib.{MyStack, StackArgs, StackFactory, StackId, StackWrapper}
+import com.myorg.lib.{MyStack, StackContext, StackFactory, StackId, StackWrapper}
 import software.amazon.awscdk.core.RemovalPolicy
 import software.amazon.awscdk.services.s3.{BlockPublicAccess, Bucket, ObjectOwnership}
 
 object SampleS3Stack extends StackFactory {
   val id: StackId = StackId("s3-stack")
 
-  def apply(stackArgs: StackArgs): SampleS3Stack = {
-    val stack = MyStack(this.id, stackArgs)
+  def apply()(implicit ctx: StackContext): SampleS3Stack = {
+    implicit val stack: MyStack = MyStack(this.id)
+
     val s3Bucket: Bucket = Bucket.Builder
       .create(stack, "SampleS3Bucket")
       .bucketName("my-sample-s3-bucket-ap-northeast-1")
@@ -17,8 +18,8 @@ object SampleS3Stack extends StackFactory {
       .objectOwnership(ObjectOwnership.BUCKET_OWNER_ENFORCED)
       .build()
 
-    new SampleS3Stack(stack, s3Bucket)
+    SampleS3Stack(s3Bucket)
   }
 }
 
-class SampleS3Stack private (stack: MyStack, val s3Bucket: Bucket) extends StackWrapper(stack)
+case class SampleS3Stack private (s3Bucket: Bucket)(implicit stack: MyStack) extends StackWrapper(stack)

@@ -1,7 +1,7 @@
 package com.myorg.example
 
 import com.myorg.example.context.ContextKeys
-import com.myorg.lib.{MyStack, StackArgs, StackFactory, StackId, StackWrapper}
+import com.myorg.lib.{MyStack, StackContext, StackFactory, StackId, StackWrapper}
 import software.amazon.awscdk.services.ec2.{
   AmazonLinuxGeneration,
   AmazonLinuxImage,
@@ -20,8 +20,11 @@ import software.amazon.awscdk.services.ec2.{
 object SampleEc2BastionStack extends StackFactory {
   val id: StackId = StackId("ec2-bastion-stack")
 
-  def apply(stackArgs: StackArgs, vpc: Vpc, sgBastion: SecurityGroup): SampleEc2BastionStack = {
-    val stack      = MyStack(this.id, stackArgs)
+  def apply(vpc: Vpc, sgBastion: SecurityGroup)(implicit
+    ctx: StackContext
+  ): SampleEc2BastionStack = {
+    implicit val stack: MyStack = MyStack(this.id)
+
     val keyName    = stack.tryGetContext[String](ContextKeys.KeyName).get
     val userScript = io.Source.fromResource("user-data/user-data-for-bastion.sh").mkString
 
@@ -40,7 +43,7 @@ object SampleEc2BastionStack extends StackFactory {
 
     bastion.addSecurityGroup(sgBastion)
 
-    new SampleEc2BastionStack(stack, bastion)
+    SampleEc2BastionStack(bastion)
   }
 
   private def amazonLinux2Image(userScript: String) = {
@@ -52,4 +55,4 @@ object SampleEc2BastionStack extends StackFactory {
   }
 }
 
-class SampleEc2BastionStack private (stack: MyStack, val bastion: Instance) extends StackWrapper(stack)
+case class SampleEc2BastionStack private (bastion: Instance)(implicit stack: MyStack) extends StackWrapper(stack)

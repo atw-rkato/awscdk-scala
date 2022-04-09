@@ -2,26 +2,25 @@ package com.myorg.example
 
 import com.myorg.CdkSpecBase
 import com.myorg.CdkSpecBase.{TestJsValueOps, TestStackOps}
-import com.myorg.lib.StackArgs
+import com.myorg.lib.StackContext
 import play.api.libs.json.JsValue
 import software.amazon.awscdk.core
 import software.amazon.awscdk.core.AppProps
 
 object SampleEc2BastionStackSpec {
-
   val InstanceId = "SampleEc2Bastion77096BC4"
   val RoleId     = "SampleEc2BastionInstanceRole9259FCCD"
 
   private def getTemplate(context: java.util.Map[String, Any] = TestProps.Context): JsValue = {
-    val stackArgs       = StackArgs(new core.App(AppProps.builder().context(context).build()))
-    val vpcStack        = SampleVpcStack(stackArgs)
-    val ec2BastionStack = SampleEc2BastionStack(stackArgs, vpcStack.vpc, vpcStack.sgBastion)
+    implicit val ctx: StackContext = StackContext(new core.App(AppProps.builder().context(context).build()))
+
+    val SampleVpcStack(vpc, sgBastion, _) = SampleVpcStack()
+    val ec2BastionStack                   = SampleEc2BastionStack(vpc, sgBastion)
     ec2BastionStack.toJson
   }
 }
 
 class SampleEc2BastionStackSpec extends CdkSpecBase {
-
   import SampleEc2BastionStackSpec.*
 
   "EC2 for bastion" - {

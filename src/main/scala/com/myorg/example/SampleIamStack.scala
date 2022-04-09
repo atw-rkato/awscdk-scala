@@ -1,13 +1,14 @@
 package com.myorg.example
 
-import com.myorg.lib.{MyStack, StackArgs, StackFactory, StackId, StackWrapper}
+import com.myorg.lib.{MyStack, StackContext, StackFactory, StackId, StackWrapper}
 import software.amazon.awscdk.services.iam.{CfnInstanceProfile, ManagedPolicy, Role, ServicePrincipal}
 
 object SampleIamStack extends StackFactory {
   val id: StackId = StackId("iam-stack")
 
-  def apply(stackArgs: StackArgs): SampleIamStack = {
-    val stack     = MyStack(SampleIamStack.id, stackArgs)
+  def apply()(implicit ctx: StackContext): SampleIamStack = {
+    implicit val stack: MyStack = MyStack(this.id)
+
     val urlSuffix = stack.scopedAws.getUrlSuffix
 
     val roleName = "sample-role-web"
@@ -25,8 +26,8 @@ object SampleIamStack extends StackFactory {
       .roles(jList(roleName))
       .build()
 
-    new SampleIamStack(stack, webRole)
+    SampleIamStack(webRole)
   }
 }
 
-class SampleIamStack private (stack: MyStack, val webRole: Role) extends StackWrapper(stack)
+case class SampleIamStack private (webRole: Role)(implicit stack: MyStack) extends StackWrapper(stack)

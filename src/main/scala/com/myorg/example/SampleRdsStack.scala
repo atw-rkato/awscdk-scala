@@ -1,6 +1,6 @@
 package com.myorg.example
 
-import com.myorg.lib.{MyStack, StackArgs, StackFactory, StackId, StackWrapper}
+import com.myorg.lib.{MyStack, StackContext, StackFactory, StackId, StackWrapper}
 import software.amazon.awscdk.core.{Duration, RemovalPolicy}
 import software.amazon.awscdk.services.ec2.{
   InstanceClass,
@@ -24,8 +24,9 @@ import software.amazon.awscdk.services.rds.{
 object SampleRdsStack extends StackFactory {
   val id: StackId = StackId("rds-stack")
 
-  def apply(stackArgs: StackArgs, vpc: Vpc): SampleRdsStack = {
-    val stack = MyStack(this.id, stackArgs)
+  def apply(vpc: Vpc)(implicit ctx: StackContext): SampleRdsStack = {
+    implicit val stack: MyStack = MyStack(this.id)
+
     val engine =
       DatabaseInstanceEngine.mysql(MySqlInstanceEngineProps.builder().version(MysqlEngineVersion.VER_8_0_26).build())
 
@@ -70,8 +71,8 @@ object SampleRdsStack extends StackFactory {
       .optionGroup(optionGroup)
       .build()
 
-    new SampleRdsStack(stack, db)
+    SampleRdsStack(db)
   }
 }
 
-class SampleRdsStack private (stack: MyStack, val db: DatabaseInstance) extends StackWrapper(stack)
+case class SampleRdsStack private (db: DatabaseInstance)(implicit stack: MyStack) extends StackWrapper(stack)

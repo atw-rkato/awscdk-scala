@@ -9,25 +9,25 @@ import com.myorg.example.{
   SampleS3Stack,
   SampleVpcStack,
 }
-import com.myorg.lib.StackArgs
+import com.myorg.lib.StackContext
 import software.amazon.awscdk.core
+import software.amazon.awscdk.core.StackProps
 
 @main def main(): Unit = {
   val app = new core.App()
 
-  createStacks(StackArgs(app))
+  createStacks()(StackContext(app))
   app.synth
 }
 
-private def createStacks(stackArgs: StackArgs): Unit = {
-  val iamStack        = SampleIamStack(stackArgs)
-  val s3Stack         = SampleS3Stack(stackArgs)
-  val vpcStack        = SampleVpcStack(stackArgs)
-  val vpc             = vpcStack.vpc
-  val ec2BastionStack = SampleEc2BastionStack(stackArgs, vpc, vpcStack.sgBastion)
-  val ec2ServerStack  = SampleEc2ServerStack(stackArgs, vpc, iamStack.webRole)
-  val albStack        = SampleAlbStack(stackArgs, vpc, vpcStack.sgElb, ec2ServerStack.web01, ec2ServerStack.web02)
-  val rdsStack        = SampleRdsStack(stackArgs, vpc)
+private def createStacks()(implicit ctx: StackContext): Unit = {
+  val SampleIamStack(webRole)               = SampleIamStack()
+  val _                                     = SampleS3Stack()
+  val SampleVpcStack(vpc, sgBastion, sgElb) = SampleVpcStack()
+  val _                                     = SampleEc2BastionStack(vpc, sgBastion)
+  val SampleEc2ServerStack(web01, web02)    = SampleEc2ServerStack(vpc, webRole)
+  val _                                     = SampleAlbStack(vpc, sgElb, web01, web02)
+  val _                                     = SampleRdsStack(vpc)
 
   ()
 }

@@ -1,6 +1,6 @@
 package com.myorg.example
 
-import com.myorg.lib.{MyStack, StackArgs, StackFactory, StackId, StackWrapper}
+import com.myorg.lib.{MyStack, StackContext, StackFactory, StackId, StackWrapper}
 import software.amazon.awscdk.services.ec2.{
   AmazonLinuxGeneration,
   AmazonLinuxImage,
@@ -19,8 +19,9 @@ import software.amazon.awscdk.services.iam.Role
 object SampleEc2ServerStack extends StackFactory {
   val id: StackId = StackId("ec2-server-stack")
 
-  def apply(stackArgs: StackArgs, vpc: Vpc, webRole: Role): SampleEc2ServerStack = {
-    val stack      = MyStack(this.id, stackArgs)
+  def apply(vpc: Vpc, webRole: Role)(implicit ctx: StackContext): SampleEc2ServerStack = {
+    implicit val stack: MyStack = MyStack(this.id)
+
     val keyName    = stack.tryGetContext[String]("keyName").get
     val userScript = io.Source.fromResource("user-data/user-data-for-server.sh").mkString
 
@@ -60,7 +61,7 @@ object SampleEc2ServerStack extends StackFactory {
       .role(webRole)
       .build()
 
-    new SampleEc2ServerStack(stack, web01, web02)
+    SampleEc2ServerStack(web01, web02)
   }
 
   private def amazonLinux2Image(userScript: String): AmazonLinuxImage = {
@@ -72,5 +73,5 @@ object SampleEc2ServerStack extends StackFactory {
   }
 }
 
-class SampleEc2ServerStack private (stack: MyStack, val web01: Instance, val web02: Instance)
+case class SampleEc2ServerStack private (web01: Instance, web02: Instance)(implicit stack: MyStack)
     extends StackWrapper(stack)
